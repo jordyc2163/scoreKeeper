@@ -1,4 +1,8 @@
 const selector = document.querySelector('#dropdown')
+const reset = document.querySelector('#resetButton')
+const h1 = document.querySelector('#score')
+const footer = document.querySelector('.card-footer')
+
 
 for (let i = 1; i <= 50; i++) {
     const option = document.createElement('option');
@@ -6,57 +10,65 @@ for (let i = 1; i <= 50; i++) {
     selector.append(option)
 }
 
-const playerOne = document.querySelector('#p1Button')
-const playerTwo = document.querySelector('#p2Button')
-const reset = document.querySelector('#resetButton')
-
-const p1Display = document.querySelector('#p1Score')
-const p2Display = document.querySelector('#p2Score')
-const h1 = document.querySelector('#score')
-
-
-const footer = document.querySelector('.card-footer')
-
-
-
+// creating player Objects
+const playerOne = {
+    score: 0,
+    button: document.querySelector('#p1Button'),
+    display: document.querySelector('#p1Score')
+}
+const playerTwo = {
+    score: 0,
+    button: document.querySelector('#p2Button'),
+    display: document.querySelector('#p2Score')
+}
 
 
 
-let score1 = 0
-let score2 = 0
-p1Display.innerText = `${score1}`
-p2Display.innerText = `${score2}`
 
 // reset score function
 const resetFunc = () => {
-    score1 = 0
-    score2 = 0
-    p1Display.innerText = `${score1}`
-    p2Display.innerText = `${score2}`
-    p1Display.classList.remove('winner', 'loser')
-    p2Display.classList.remove('winner', 'loser')
-    playerOne.disabled = false
-    playerTwo.disabled = false
+    for(let p of [playerOne, playerTwo]){
+        p.score = 0
+        p.display.innerText = p.score
+        p.display.classList.remove('winner', 'loser')
+        p.button.disabled = false
+    }
 }
 
 // style disabler function
 
-const disableButtons = () => {
-    playerOne.disabled = true
-    playerTwo.disabled = true
+const disableButtons = (player, opponent) => {
+    player.button.disabled = true
+    opponent.button.disabled = true
     // Bulma built in features
 }
+
+// score updater function
+const updateScore = (player, opponent) => {
+    player.score += 1
+    player.display.innerText = player.score
+    opponent.display.innerText = opponent.score
+    if(player.score === parseInt(selector.value)){
+        player.display.classList.add('winner')
+        opponent.display.classList.add('loser')
+        disableButtons(player, opponent)
+    }
+}
+
+
+playerOne.display.innerText = playerOne.score
+playerTwo.display.innerText = playerTwo.score
 
 // Event Listener for adding and resetting score
 footer.addEventListener('click', (e) => {
     e.preventDefault()
 
-    if (score1 !== parseInt(selector.value) && score2 !== parseInt(selector.value)) {
-        if (e.target === playerOne) {
-            score1 += 1
+    if (playerOne.score !== parseInt(selector.value) && playerTwo.score !== parseInt(selector.value)) {
+        if (e.target === playerOne.button) {
+            updateScore(playerOne, playerTwo)
         }
-        else if (e.target === playerTwo) {
-            score2 += 1
+        else if (e.target === playerTwo.button) {
+            updateScore(playerTwo, playerOne)
         }
     }
 
@@ -64,22 +76,6 @@ footer.addEventListener('click', (e) => {
     if (e.target === reset) {
         resetFunc()
     }
-
-    p1Display.innerText = `${score1}`
-    p2Display.innerText = `${score2}`
-
-    if(score1 === parseInt(selector.value)){
-        p1Display.classList.add('winner')
-        p2Display.classList.add('loser')
-        disableButtons()
-
-    }
-    else if(score2 === parseInt(selector.value)){
-        p2Display.classList.add('winner')
-        p1Display.classList.add('loser')
-        disableButtons()
-    }
-    
 })
 
 selector.addEventListener('change', (e) => {
